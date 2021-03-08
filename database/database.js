@@ -17,8 +17,8 @@ const transactionList = [];
   "timestamp": date}
   Points can be either positive or negative, with negative equating to points spent.
 */
-function addTransaction() {
-
+const addTransaction = function() {
+  return 1;
 }
 
 /*Spend the specified number of points and return an array of payers and the points dedcuted from each payer's balance:
@@ -30,8 +30,8 @@ function addTransaction() {
   ]
   Points should be deducted from oldest transactions (by timestamp) first.
 */
-function spendPoints() {
-
+const spendPoints = function() {
+  return 1;
 }
 
 /*calculate balance for each payer and return in the following format:
@@ -40,12 +40,16 @@ function spendPoints() {
 
    No payer should have negative points.
 */
-function getBalance() {
-
+const getBalance = function() {
+  return 1;
 }
 
 //helper function: list transactions currently in memory.
-function listTransactions() {
-
+const listTransactions = function() {
+  return 1;
 }
 
+module.exports.addTransaction = addTransaction;
+module.exports.spendPoints = spendPoints;
+module.exports.getBalance = getBalance;
+module.exports.listTransactions = listTransactions;

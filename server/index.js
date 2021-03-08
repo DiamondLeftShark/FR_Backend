@@ -1,9 +1,13 @@
 //library declarations
-var express = require('express');
+const express = require('express');
+const bodyParser = require('body-parser');
+const db = require('../database/database.js');
 //TBD: additional library declarations as needed
 
 
 var app = express();
+app.use( bodyParser.json() );
+
 var port = 3001;
 
 
