@@ -4,12 +4,16 @@
   "description": "Small program written for Fetch Rewards job application process",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server/index.js",
+    "start-prod": "node server/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
     "node": "^15.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }

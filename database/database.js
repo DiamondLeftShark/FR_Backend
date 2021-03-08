@@ -1,5 +1,6 @@
 /*handles variables for data storage and the function calls required to access and modify the data.
 For purposes of exercise, this transaction data is stored in memory and will be cleared on any server restart.
+This code also assumes that all transactions conducted/points spent belong to the same user.
 */
 
 //library declarations
