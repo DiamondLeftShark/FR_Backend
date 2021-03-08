@@ -6,8 +6,6 @@ This code also assumes that all transactions conducted/points spent belong to th
 //library declarations
 
 //variable declarations
-//TBD: store balance in a separate variable, or calculate as needed?
-const transactionList = [];
 
 //function declarations
 
@@ -15,7 +13,7 @@ const transactionList = [];
  {"payer": string,
   "points": int,
   "timestamp": date}
-  Points can be either positive or negative, with negative equating to points spent.
+  Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time for timestamp.
 */
 const addTransaction = function() {
   return 1;
