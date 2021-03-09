@@ -2,13 +2,36 @@
 For purposes of exercise, this transaction data is stored in memory and will be cleared on any server restart.
 This code also assumes that all transactions conducted/points spent belong to the same user.
 */
-
-//library declarations
+const sqlite = require('sqlite3').verbose();
+const sampleData = require('./sample_data.js');
+const schema = require('./schema.js');
 
 //variable declarations
+//testing functionality: when true, after initializing DB populates transaction table with transactions listed in sample_data.js.
+const useSampleData = true;
+//console.log(sampleData.sampleData);
+//console.log(schema.schema);
+
+//initialize DB on startup
+const db = new sqlite.Database(':memory:', (err) => {
+  if(err) {
+    console.log("ERROR: COULD NOT INITIALIZE DB");
+    console.log(err);
+  } else {
+    console.log("SQLite database initialized in memory");
+    db.run(schema.schema, (err) => {
+      if(err) {
+        console.log("ERROR CREATING TRANSACTION TABLE");
+        console.log(err);
+      } else {
+        console.log("Transaction table created.");
+        //TBD: load sample data into table if useSampleData set to true
+      }
+    });
+  }
+});
 
 //function declarations
-
 /*add transaction to transactionList.  Transactions should be stored/received in the following format:
  {"payer": string,
   "points": int,
