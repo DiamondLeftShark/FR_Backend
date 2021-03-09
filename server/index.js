@@ -27,7 +27,20 @@ Note:
 app.post('/transaction', function(req, res) {
   console.log('POST transaction received');
   console.log(req.body);
-  res.send('TBD');
+  let transaction = null;
+  if(req.body[0] !== undefined) {
+    transaction = req.body[0];
+  } else {
+    transaction = req.body;
+  }
+
+  db.addTransaction(transaction, (output) => {
+    if(output === null) {
+      res.status(500).end();
+    } else {
+      res.send(output);
+    }
+  })
 });
 
 // /spend

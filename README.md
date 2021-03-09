@@ -41,7 +41,7 @@ API type: GET
 
 Required parameters: none
 
-Returns: A JSON list of payers in the following format:
+Response: If successful, returns a JSON list of payers in the following format:
 
 ```
 [
@@ -49,3 +49,25 @@ Returns: A JSON list of payers in the following format:
    'points': int}
 ]
 ```
+On error: returns 500
+
+*```/transaction```
+Adds the provided transaction to the table.
+
+API type: POST
+
+Required parameters:
+```
+{'payer': string,
+ 'points': int,
+ 'timestamp': date
+}
+```
+
+Note that only one transaction may be sent at a time: if multiple transactions are received, only the first one will be processed.  The payer and points fields are required, and points must also be a non-zero value.  Negative point values are accepted and will be deducted from the appropriate payer balance, however this should only be used for accounting purposes: use /spend for most spending requests.
+
+If no timestamp is provided, the system will use the current time for the transaction.
+
+Response: If successful, returns 200.
+
+On error: returns 500.

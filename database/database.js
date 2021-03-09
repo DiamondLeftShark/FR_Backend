@@ -75,9 +75,12 @@ const getTotalBalance = function(callback) {
   Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time for timestamp.
 */
 const addTransaction = function(transaction, callback) {
+  console.log("Trnsaction received: ");
   console.log(transaction);
 
-  if(transaction.points === 0) {
+  if(transaction.payer === undefined || transaction.points === undefined) {
+    callback(null);
+  } else if(transaction.points === 0) {
     //if points = 0, return null
     callback(null);
   } else if(transaction.points > 0) {
@@ -92,7 +95,7 @@ const addTransaction = function(transaction, callback) {
         callback(null);
       } else {
         console.log("Transaction added successfully.");
-        callback("Transaction added to table.");
+        callback("Transaction added successfully.");
       }
     });
 
