@@ -88,6 +88,18 @@ const spendPoints = function(points, callback) {
    No payer should have negative points.
 */
 const getBalance = function(callback) {
+  let query = `SELECT PAYER, SUM(points) as points from transactions
+              group by payer;`;
+  db.all(query, (err, rows) => {
+    if(err) {
+      console.log("Error calculating payer balance");
+      console.log(err);
+      callback(null);
+    } else {
+      console.log(rows);
+      callback(rows);
+    }
+  });
   return 1;
 }
 
@@ -137,9 +149,10 @@ function initializeSampleData() {
 
     listTransactions((rows) => {
       if(rows !== null) {
-        getTotalBalance((result) => {
+        getBalance((result) => {
           if(result !== null) {
-            console.log(`Total balance of sample transactions: ${result}`);
+            console.log(`Total balance of sample transactions:`);
+            console.log(result);
           }
         });
       }
