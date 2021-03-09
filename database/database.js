@@ -6,9 +6,9 @@ const sqlite = require('sqlite3').verbose();
 const sampleData = require('./sample_data.js');
 const schema = require('./schema.js');
 
-//variable declarations
 //testing functionality: when true, after initializing DB populates transaction table with transactions listed in sample_data.js.
 const useSampleData = true;
+
 //console.log(sampleData.sampleData);
 //console.log(schema.schema);
 
@@ -25,7 +25,7 @@ const db = new sqlite.Database(':memory:', (err) => {
         console.log(err);
       } else {
         console.log("Transaction table created.");
-        //TBD: load sample data into table if useSampleData set to true
+        initializeSampleData();
       }
     });
   }
@@ -38,8 +38,34 @@ const db = new sqlite.Database(':memory:', (err) => {
   "timestamp": date}
   Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time for timestamp.
 */
-const addTransaction = function() {
-  return 1;
+const addTransaction = function(transaction, callback) {
+  console.log(transaction);
+
+  if(transaction.points === 0) {
+    //if points = 0, return null
+    callback(null);
+  } else if(transaction.points > 0) {
+    //if points > 0, add transaction to table
+    let query = `INSERT INTO transactions(payer, timestamp, points)
+                 VALUES('${transaction.payer}', '${transaction.timestamp}', ${transaction.points});`;
+
+    db.run(query, (err) =>{
+      if(err) {
+        console.log("Error inserting record into table");
+        console.log(err);
+        callback(null);
+      } else {
+        console.log("Transaction added successfully.");
+        callback("Transaction added to table.");
+      }
+    });
+
+  } else if(transaction.points < 0) {
+    //if points < 0, TBD (check for valid transaction here, or in spendPoints?)
+
+  } else {
+    callback(null);
+  }
 }
 
 /*Spend the specified number of points and return an array of payers and the points dedcuted from each payer's balance:
@@ -51,7 +77,7 @@ const addTransaction = function() {
   ]
   Points should be deducted from oldest transactions (by timestamp) first.
 */
-const spendPoints = function() {
+const spendPoints = function(points, callback) {
   return 1;
 }
 
@@ -61,13 +87,37 @@ const spendPoints = function() {
 
    No payer should have negative points.
 */
-const getBalance = function() {
+const getBalance = function(callback) {
   return 1;
 }
 
 //helper function: list transactions currently in memory.
-const listTransactions = function() {
-  return 1;
+const listTransactions = function(callback) {
+  db.all('select * from transactions order by tranID', (err, rows) => {
+    if(err) {
+      console.log("Error listing transactions.");
+      console.log(err);
+    } else {
+      console.log(rows);
+    }
+  });
+}
+
+//TBD: load sample data
+function initializeSampleData() {
+  if(useSampleData) {
+    console.log("Loading sample data into table...");
+    for(let i = 0; i < sampleData.sampleData.length; i++) {
+      addTransaction(sampleData.sampleData[i], (res) => {
+        if(res === null) {
+          console.log(`Error loading sample record ${i}`);
+        } else {
+          console.log(`Sample record ${i} loaded`);
+        }
+      });
+    }
+    listTransactions();
+  }
 }
 
 module.exports.addTransaction = addTransaction;
