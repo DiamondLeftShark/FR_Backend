@@ -80,9 +80,10 @@ const addTransaction = function(transaction, callback) {
 
   if(transaction.payer === undefined || transaction.points === undefined) {
     callback(null);
+
   } else if(transaction.points === 0) {
-    //if points = 0, return null
     callback(null);
+
   } else if(transaction.points > 0) {
     //if points > 0, add transaction to table
     let query = `INSERT INTO transactions(payer, timestamp, points)
@@ -103,7 +104,7 @@ const addTransaction = function(transaction, callback) {
     //if points < 0, TBD (check for valid transaction here, or in spendPoints?)
 
   } else {
-    //catch-all for edge cases (e.g. no points field)
+    //catch-all for edge cases not specified elsewhere
     callback(null);
   }
 }
@@ -118,6 +119,13 @@ const addTransaction = function(transaction, callback) {
   Points should be deducted from oldest transactions (by timestamp) first.
 */
 const spendPoints = function(points, callback) {
+  //TBD
+
+  //check if points <= total balance
+  //if points spent exceed remaining balance, return an error
+  //otherwise, check which transactions have a remaining points balance and deduct from each payer until all points have been deducted
+  //add appropriate transactions to each table deducting points from each payer as needed
+  //after all transactions have been added, return a list of points spent for each payer to the callback function
   return 1;
 }
 
@@ -137,7 +145,7 @@ const listTransactions = function(callback) {
   });
 }
 
-//TBD: load sample data
+//helper function: loads sample data from sample_data.js into table.
 function initializeSampleData() {
   if(useSampleData) {
 
