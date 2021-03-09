@@ -23,6 +23,7 @@ Note:
 */
 
 // /transaction
+//TBD
 app.post('/transaction', function(req, res) {
   console.log('POST transaction received');
   console.log(req.body);
@@ -30,6 +31,7 @@ app.post('/transaction', function(req, res) {
 });
 
 // /spend
+//TBD
 app.post('/spend', function(req,res) {
   console.log('POST spend received');
   console.log(req.body);
@@ -37,10 +39,18 @@ app.post('/spend', function(req,res) {
 });
 
 // /balance
+//TBD
 app.get('/balance', function(req,res) {
+
   console.log('GET balance received');
-  console.log(req.query);
-  res.send('TBD');
+
+  db.getBalance((transactions) => {
+    if(transactions === null) {
+      res.status(500).end();
+    } else {
+      res.send(transactions);
+    }
+  });
 });
 
 //start listener on localhost:3000

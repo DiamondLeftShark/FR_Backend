@@ -32,6 +32,42 @@ const db = new sqlite.Database(':memory:', (err) => {
 });
 
 //function declarations
+
+/*calculate balance for each payer and return in the following format:
+  {"payer": string,
+   "points": int}
+   No payer should have negative points.
+*/
+const getBalance = function(callback) {
+  let query = `SELECT PAYER, SUM(points) as points from transactions
+              group by payer;`;
+  db.all(query, (err, rows) => {
+    if(err) {
+      console.log("Error calculating payer balance");
+      console.log(err);
+      callback(null);
+    } else {
+      console.log(rows);
+      callback(rows);
+    }
+  });
+  return 1;
+}
+
+//helper function: calculates and returns total points for all transactions
+const getTotalBalance = function(callback) {
+  let query = 'SELECT SUM(points) AS totalBalance from transactions;';
+  db.all(query, (err, rows) => {
+    if(err) {
+      console.log("Error calculating total balance for all transactions.");
+      console.log(err);
+      callback(null);
+    } else {
+      console.log(rows[0].totalBalance);
+      callback(rows[0].totalBalance);
+    }
+  });
+}
 /*add transaction to transactionList.  Transactions should be stored/received in the following format:
  {"payer": string,
   "points": int,
@@ -82,41 +118,7 @@ const spendPoints = function(points, callback) {
   return 1;
 }
 
-/*calculate balance for each payer and return in the following format:
-  {"payer": string,
-   "points": int}
-   No payer should have negative points.
-*/
-const getBalance = function(callback) {
-  let query = `SELECT PAYER, SUM(points) as points from transactions
-              group by payer;`;
-  db.all(query, (err, rows) => {
-    if(err) {
-      console.log("Error calculating payer balance");
-      console.log(err);
-      callback(null);
-    } else {
-      console.log(rows);
-      callback(rows);
-    }
-  });
-  return 1;
-}
 
-//helper function: calculates and returns total points for all transactions
-const getTotalBalance = function(callback) {
-  let query = 'SELECT SUM(points) AS totalBalance from transactions;';
-  db.all(query, (err, rows) => {
-    if(err) {
-      console.log("Error calculating total balance for all transactions.");
-      console.log(err);
-      callback(null);
-    } else {
-      console.log(rows[0].totalBalance);
-      callback(rows[0].totalBalance);
-    }
-  });
-}
 
 //helper function: list transactions currently in memory.
 const listTransactions = function(callback) {
