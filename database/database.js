@@ -64,6 +64,7 @@ const addTransaction = function(transaction, callback) {
     //if points < 0, TBD (check for valid transaction here, or in spendPoints?)
 
   } else {
+    //catch-all for edge cases (e.g. no points field)
     callback(null);
   }
 }
@@ -84,11 +85,25 @@ const spendPoints = function(points, callback) {
 /*calculate balance for each payer and return in the following format:
   {"payer": string,
    "points": int}
-
    No payer should have negative points.
 */
 const getBalance = function(callback) {
   return 1;
+}
+
+//helper function: calculates and returns total points for all transactions
+const getTotalBalance = function(callback) {
+  let query = 'SELECT SUM(points) AS totalBalance from transactions;';
+  db.all(query, (err, rows) => {
+    if(err) {
+      console.log("Error calculating total balance for all transactions.");
+      console.log(err);
+      callback(null);
+    } else {
+      console.log(rows[0].totalBalance);
+      callback(rows[0].totalBalance);
+    }
+  });
 }
 
 //helper function: list transactions currently in memory.
@@ -97,8 +112,10 @@ const listTransactions = function(callback) {
     if(err) {
       console.log("Error listing transactions.");
       console.log(err);
+      callback(null);
     } else {
       console.log(rows);
+      callback(rows);
     }
   });
 }
@@ -106,6 +123,7 @@ const listTransactions = function(callback) {
 //TBD: load sample data
 function initializeSampleData() {
   if(useSampleData) {
+
     console.log("Loading sample data into table...");
     for(let i = 0; i < sampleData.sampleData.length; i++) {
       addTransaction(sampleData.sampleData[i], (res) => {
@@ -116,7 +134,17 @@ function initializeSampleData() {
         }
       });
     }
-    listTransactions();
+
+    listTransactions((rows) => {
+      if(rows !== null) {
+        getTotalBalance((result) => {
+          if(result !== null) {
+            console.log(`Total balance of sample transactions: ${result}`);
+          }
+        });
+      }
+    });
+
   }
 }
 
