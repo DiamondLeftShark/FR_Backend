@@ -102,6 +102,7 @@ const addTransaction = function(transaction, callback) {
 
   } else if(transaction.points < 0) {
     //if points < 0, TBD (check for valid transaction here, or in spendPoints?)
+    //TBD: remove this if handling points tracking in spendPoints, update previous else if to transaction.point !== 0
 
   } else {
     //catch-all for edge cases not specified elsewhere
@@ -119,14 +120,33 @@ const addTransaction = function(transaction, callback) {
   Points should be deducted from oldest transactions (by timestamp) first.
 */
 const spendPoints = function(points, callback) {
-  //TBD
+  console.log(`Spending ${points} points...`);
+
+  let payerList = {};
+  let pointsSpent = 0;
 
   //check if points <= total balance
-  //if points spent exceed remaining balance, return an error
-  //otherwise, check which transactions have a remaining points balance and deduct from each payer until all points have been deducted
-  //add appropriate transactions to each table deducting points from each payer as needed
-  //after all transactions have been added, return a list of points spent for each payer to the callback function
-  return 1;
+  getTotalBalance((totalBalance) => {
+    if(totalBalance === null) {
+      console.log("Error calculating current total balance.");
+      callback(null);
+
+    } else if(totalBalance < points) {
+      //if points spent exceed remaining balance, return an error
+      console.log(`Error: attempting to spend ${points} points but only ${totalBalance} available.`);
+      callback(null);
+
+    } else {
+       //otherwise, check which transactions have a remaining points balance and deduct from each payer until all points have been deducted
+       //add appropriate transactions to each table deducting points from each payer as needed
+       //after all transactions have been added, return a list of points spent for each payer to the callback function
+       while(pointsSpent < points) {
+
+       }
+
+    }
+  })
+
 }
 
 
@@ -150,26 +170,30 @@ function initializeSampleData() {
   if(useSampleData) {
 
     console.log("Loading sample data into table...");
-    for(let i = 0; i < sampleData.sampleData.length; i++) {
-      addTransaction(sampleData.sampleData[i], (res) => {
-        if(res === null) {
-          console.log(`Error loading sample record ${i}`);
-        } else {
-          console.log(`Sample record ${i} loaded`);
-        }
-      });
-    }
 
-    listTransactions((rows) => {
-      if(rows !== null) {
-        getBalance((result) => {
-          if(result !== null) {
-            console.log(`Total balance of sample transactions:`);
-            console.log(result);
+    db.serialize(() => {
+      for(let i = 0; i < sampleData.sampleData.length; i++) {
+        addTransaction(sampleData.sampleData[i], (res) => {
+          if(res === null) {
+            console.log(`Error loading sample record ${i}`);
+          } else {
+            console.log(`Sample record ${i} loaded`);
           }
         });
       }
-    });
+
+      listTransactions((rows) => {
+        if(rows !== null) {
+          console.log(`Total balance of sample transactions:`);
+          getBalance((result) => {
+            if(result !== null) {
+              console.log(`---------------------------------`);
+            }
+          });
+        }
+      });
+
+  });
 
   }
 }
