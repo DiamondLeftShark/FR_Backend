@@ -25,7 +25,7 @@ Note:
 // /transaction
 //TBD
 app.post('/transaction', function(req, res) {
-  console.log('POST transaction received');
+  console.log('POST /transaction received');
   console.log(req.body);
   let transaction = null;
   if(req.body[0] !== undefined) {
@@ -44,11 +44,26 @@ app.post('/transaction', function(req, res) {
 });
 
 // /spend
-//TBD
+//TBD: finish routing output on success
 app.post('/spend', function(req,res) {
-  console.log('POST spend received');
+  console.log('POST /spend received');
   console.log(req.body);
-  res.send("TBD");
+  let points = null;
+  if(req.body[0] !== undefined) {
+    points = req.body[0].points;
+  } else {
+    points = req.body.points;
+  }
+  console.log(points);
+
+  db.spendPoints(points, (output) => {
+    if(output === null) {
+      res.status(500).end();
+    } else {
+      res.send("TBD");
+    }
+  });
+
 });
 
 // /balance

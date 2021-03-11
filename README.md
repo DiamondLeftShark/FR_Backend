@@ -4,7 +4,7 @@ This program was built as a solution for the Fetch Rewards coding prompt listed 
 
 ## Assumptions and Notes
 
-1. All transactions are for the same user, so this code has no validation/checking for multiple users.
+1. All transactions are assumbed to be for the same user, so this code has no validation/checking for multiple users.
 
 2. Beyond checking for necessary information (e.g. that API requests are in the expected format, checking for point balance before approving transactions), this program assumes any required validation has been performed elsewhere: in other words, if it comes in via the API in the correct format, it is assumed to be a valid transaction.
 

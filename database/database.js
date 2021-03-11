@@ -123,7 +123,7 @@ const spendPoints = function(points, callback) {
   console.log(`Spending ${points} points...`);
 
   let payerList = {};
-  let pointsSpent = 0;
+  let currentPointsSpent = 0;
 
   //check if points <= total balance
   getTotalBalance((totalBalance) => {
@@ -140,9 +140,51 @@ const spendPoints = function(points, callback) {
        //otherwise, check which transactions have a remaining points balance and deduct from each payer until all points have been deducted
        //add appropriate transactions to each table deducting points from each payer as needed
        //after all transactions have been added, return a list of points spent for each payer to the callback function
-       while(pointsSpent < points) {
 
-       }
+      let sql = `select * from transactions
+                 where points > 0
+                 AND spentPoints < points
+                 order by timestamp;`;
+
+      db.all(sql, (err, rows) => {
+          if(err) {
+            console.log(err);
+            callback(null);
+          } else {
+            console.log(rows);
+            console.log('************');
+
+            for(let i = 0; i < rows.length; i++) {
+              //console.log(`Current points spent: ${currentPointsSpent} out of ${points} before row ${i}`);
+              console.log(rows[i]);
+
+              if(currentPointsSpent < points) {
+                let remainingPointsForRow = rows[i].points - rows[i].spentPoints;
+                if(points - currentPointsSpent >= remainingPointsForRow) {
+                  (payerList[rows[i].payer] === undefined) ? (payerList[rows[i].payer] = remainingPointsForRow) : (payerList[rows[i].payer] += remainingPointsForRow);
+                  currentPointsSpent += remainingPointsForRow;
+                } else {
+                  (payerList[rows[i].payer] === undefined) ? (payerList[rows[i].payer] = points - currentPointsSpent) : (payerList[rows[i].payer] += points - currentPointsSpent);
+                  currentPointsSpent += points - currentPointsSpent;
+                }
+
+              }
+
+              console.log(`Current points spent: ${currentPointsSpent} out of ${points} after row ${i}`);
+              console.log(payerList);
+
+            }
+
+            /*TBD: At this point, should have all points spent for each payer.  Now:
+            1. Add a new (spending) transaction to the table for each payer using addTransaction().  addTransaction will need to both add the transaction, as well as
+               update the necessary transactions with the correct spendPoints value.
+            2. Once all spending transactions have been added, send the payerList to the callback.  The payerList will need to be converted to an array of objects
+              {"payer": string, "points": int}, but this can be handled either in DB or server code.
+
+            */
+
+          }
+      });
 
     }
   })
