@@ -248,7 +248,7 @@ const spendPoints = function(points, callback) {
             console.log('************');
 
             for(let i = 0; i < rows.length; i++) {
-              //console.log(`Current points spent: ${currentPointsSpent} out of ${points} before row ${i}`);
+
               console.log(rows[i]);
 
               if(currentPointsSpent < points) {
@@ -268,34 +268,44 @@ const spendPoints = function(points, callback) {
 
             }
 
-            /*TBD: At this point, should have all points spent for each payer.  Now:
-            1. Add a new (spending) transaction to the table for each payer using addTransaction().  addTransaction will need to both add the transaction, as well as
-               update the necessary transactions with the correct spendPoints value.
-            2. Once all spending transactions have been added, send the payerList to the callback.  The payerList will need to be converted to an array of objects
-              {"payer": string, "points": int}, but this can be handled either in DB or server code.
-            */
-            for(payer in payerList) {
-              let negativePoints = payerList[payer] * -1;
+            //update table with transactions and send results to callback
+            let payerListToSend = [];
 
-              let spendTransaction = { "payer": payer,
-                                       "points": negativePoints,
-                                       "timestamp":  moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]')
-                                     };
+            db.serialize( () => {
 
-              console.log("Adding following transaction to transaction table: ");
-              console.log(spendTransaction);
-              //TBD: remaining code: add addTransaction handling here
-              addTransaction(spendTransaction, (output) => {
-                if(output === null) {
-                  console.log("Error adding transaction");
-                  callback(null);
-                } else {
-                  console.log(`Transaction for ${payer} added successfully.`);
-                }
+              for(payer in payerList) {
+                let negativePoints = payerList[payer] * -1;
 
-              });
+                let spendTransaction = { "payer": payer,
+                                        "points": negativePoints,
+                                        "timestamp":  moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]')
+                                      };
 
-            }
+                console.log("Adding following transaction to transaction table: ");
+                console.log(spendTransaction);
+                //TBD: remaining code: add addTransaction handling here
+                addTransaction(spendTransaction, (output) => {
+                  if(output === null) {
+                    console.log("Error adding transaction");
+                    callback(null);
+                  } else {
+                    console.log(`Transaction for ${payer} added successfully.`);
+                  }
+
+                });
+
+                let payerInfo = { "payer": payer,
+                                  "points": negativePoints
+                                };
+
+                payerListToSend.push(payerInfo);
+
+              }
+
+              console.log("Sending: ");
+              console.log(payerListToSend);
+              callback(payerListToSend);
+            });
 
           }
       });
@@ -304,7 +314,6 @@ const spendPoints = function(points, callback) {
   })
 
 }
-
 
 
 //helper function: list transactions currently in memory.

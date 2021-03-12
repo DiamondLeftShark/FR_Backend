@@ -61,7 +61,7 @@ app.post('/spend', function(req,res) {
     if(output === null) {
       res.status(500).end();
     } else {
-      res.send("TBD");
+      res.send(output);
     }
   });
 
