@@ -86,7 +86,7 @@ const addTransaction = function(transaction, callback) {
 
   //use current datetime if timestamp not provided
   if(timestamp === null || timestamp === undefined) {
-    timestamp = moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]');
+    timestamp = moment().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
   }
 
   if(payer === undefined || points === undefined) {
@@ -269,7 +269,7 @@ const spendPoints = function(points, callback) {
 
                 let spendTransaction = { "payer": payer,
                                         "points": negativePoints,
-                                        "timestamp":  moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]')
+                                        "timestamp":  moment().format('YYYY-MM-DD[T]HH:mm:ss[Z]')
                                       };
 
                 console.log("Adding following transaction to transaction table: ");
