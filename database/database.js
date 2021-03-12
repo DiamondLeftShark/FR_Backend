@@ -33,11 +33,7 @@ const db = new sqlite.Database(':memory:', (err) => {
 Function Declarations
 -------------------*/
 
-/*calculate balance for each payer and return in the following format:
-  {"payer": string,
-   "points": int}
-   No payer should have negative points.
-*/
+//calculate balance for each payer.
 const getBalance = function(callback) {
   let query = `SELECT PAYER, SUM(points) as points from transactions
               group by payer;`;
@@ -47,7 +43,7 @@ const getBalance = function(callback) {
       console.log(err);
       callback(null);
     } else {
-      console.log(rows);
+      //console.log(rows);
       let formattedBalance = {};
       for(let i = 0; i < rows.length; i++) {
         formattedBalance[rows[i].payer] = rows[i].points;
