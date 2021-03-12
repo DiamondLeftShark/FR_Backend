@@ -3,14 +3,12 @@ For purposes of exercise, this transaction data is stored in memory and will be 
 This code also assumes that all transactions conducted/points spent belong to the same user.
 */
 const sqlite = require('sqlite3').verbose();
+const moment = require('moment');
 const sampleData = require('./sample_data.js');
 const schema = require('./schema.js');
 
-//testing functionality: when true, after initializing DB populates transaction table with transactions listed in sample_data.js.
+//when true, after initializing DB populates transaction table with transactions listed in sample_data.js.
 const useSampleData = true;
-
-//console.log(sampleData.sampleData);
-//console.log(schema.schema);
 
 //initialize DB on startup
 const db = new sqlite.Database(':memory:', (err) => {
@@ -68,26 +66,36 @@ const getTotalBalance = function(callback) {
     }
   });
 }
-/*add transaction to transactionList.  Transactions should be stored/received in the following format:
+/*add transaction to transactionList.  Transactions should be received in the following format:
  {"payer": string,
   "points": int,
   "timestamp": date}
   Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time for timestamp.
+  For transactions with negative points, this function assumes accounting has been done elsewhere (e.g. spendPoints): use spendPoints unless otherwise necessary.
 */
 const addTransaction = function(transaction, callback) {
   console.log("Trnsaction received: ");
   console.log(transaction);
 
-  if(transaction.payer === undefined || transaction.points === undefined) {
+  let payer = transaction.payer;
+  let points = transaction.points;
+  let timestamp = transaction.timestamp;
+
+  //use current datetime if timestamp not provided
+  if(timestamp === null || timestamp === undefined) {
+    timestamp = moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]');
+  }
+
+  if(payer === undefined || points === undefined) {
     callback(null);
 
-  } else if(transaction.points === 0) {
+  } else if(points === 0) {
     callback(null);
 
-  } else if(transaction.points > 0) {
+  } else if(points > 0) {
     //if points > 0, add transaction to table
     let query = `INSERT INTO transactions(payer, timestamp, points)
-                 VALUES('${transaction.payer}', '${transaction.timestamp}', ${transaction.points});`;
+                 VALUES('${payer}', '${timestamp}', ${points});`;
 
     db.run(query, (err) =>{
       if(err) {
@@ -100,12 +108,14 @@ const addTransaction = function(transaction, callback) {
       }
     });
 
-  } else if(transaction.points < 0) {
-    //if points < 0, TBD (check for valid transaction here, or in spendPoints?)
-    //TBD: remove this if handling points tracking in spendPoints, update previous else if to transaction.point !== 0
+  } else if(points < 0) {
+    /*TBD:
+      1. Add spending transaction to table.
+      2. Update spentPoints for each positive transaction from the given payer until in balance.  Points should be spent using oldest available first.
+    */
 
   } else {
-    //catch-all for edge cases not specified elsewhere
+    //catch-all for edge cases not specified
     callback(null);
   }
 }
@@ -128,12 +138,12 @@ const spendPoints = function(points, callback) {
   //check if points <= total balance
   getTotalBalance((totalBalance) => {
     if(totalBalance === null) {
-      console.log("Error calculating current total balance.");
+      console.log("Error calculating current balance.");
       callback(null);
 
     } else if(totalBalance < points) {
       //if points spent exceed remaining balance, return an error
-      console.log(`Error: attempting to spend ${points} points but only ${totalBalance} available.`);
+      console.log(`Error: attempting to spend ${points} points but only ${totalBalance} points available.`);
       callback(null);
 
     } else {
@@ -180,8 +190,13 @@ const spendPoints = function(points, callback) {
                update the necessary transactions with the correct spendPoints value.
             2. Once all spending transactions have been added, send the payerList to the callback.  The payerList will need to be converted to an array of objects
               {"payer": string, "points": int}, but this can be handled either in DB or server code.
-
             */
+            for(payer in payerList) {
+              console.log(payer);
+              //moment formatting
+              console.log(moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]'));
+              //TBD: remaining code
+            }
 
           }
       });

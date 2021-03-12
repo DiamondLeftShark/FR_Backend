@@ -44,7 +44,7 @@ app.post('/transaction', function(req, res) {
 });
 
 // /spend
-//TBD: finish routing output on success
+//TBD: send points by payer back to requestor on success
 app.post('/spend', function(req,res) {
   console.log('POST /spend received');
   console.log(req.body);
