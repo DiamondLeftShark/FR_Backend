@@ -29,7 +29,9 @@ const db = new sqlite.Database(':memory:', (err) => {
   }
 });
 
-//function declarations
+/*-------------------
+Function Declarations
+-------------------*/
 
 /*calculate balance for each payer and return in the following format:
   {"payer": string,
@@ -66,12 +68,13 @@ const getTotalBalance = function(callback) {
     }
   });
 }
+
 /*add transaction to transactionList.  Transactions should be received in the following format:
  {"payer": string,
   "points": int,
   "timestamp": date}
   Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time for timestamp.
-  For transactions with negative points, this function assumes accounting has been done elsewhere (e.g. spendPoints): use spendPoints unless otherwise necessary.
+  For transactions with negative points, this function assumes balance checking has been done elsewhere (e.g. spendPoints): use spendPoints unless otherwise necessary.
 */
 const addTransaction = function(transaction, callback) {
   console.log("Trnsaction received: ");
@@ -113,6 +116,86 @@ const addTransaction = function(transaction, callback) {
       1. Add spending transaction to table.
       2. Update spentPoints for each positive transaction from the given payer until in balance.  Points should be spent using oldest available first.
     */
+    db.serialize(() => {
+      let insertQuery = `INSERT INTO transactions(payer, timestamp, points)
+                 VALUES('${payer}', '${timestamp}', ${points});`;
+
+      console.log(insertQuery);
+
+      db.run(insertQuery, (err) => {
+        if(err) {
+          console.log("Error inserting spend transaction");
+          console.log(err);
+          callback(null);
+        } else {
+          console.log("Spending transaction added, updating spentPoints...");
+
+          let sql = `select * from transactions
+                 where points > 0
+                 AND spentPoints < points
+                 AND payer = "${payer}"
+                 order by timestamp;`;
+
+          //TBD: complete rest of logic
+          db.all(sql, (err, rows) => {
+            if(err) {
+              console.log("Error getting transactions with unspent points.");
+              console.log(err);
+              callback(null);
+
+            } else {
+              console.log(rows);
+              console.log('^^^^^^^');
+              let totalPointsToSpend = points * -1;
+
+              for(i = 0; i < rows.length; i++) {
+                let tranID = rows[i].tranID;
+
+                if(totalPointsToSpend > 0) {
+                  let remainingPoints = rows[i].points - rows[i].spentPoints;
+
+                  if(totalPointsToSpend >= remainingPoints) {
+
+                    let spendPointsQuery = `UPDATE transactions
+                                            set spentPoints = spentPoints + ${remainingPoints}
+                                            where tranID = ${tranID};`
+                    db.run(spendPointsQuery, (err) => {
+                      if(err) {
+                        console.log(`Error updating spent points for tranID ${tranID}: check transaction table.`);
+                      } else {
+                        console.log(`TranID ${tranID} updated.`);
+                      }
+
+                    });
+
+                    totalPointsToSpend -= remainingPoints;
+
+                  } else {
+                    let spendPointsQuery = `UPDATE transactions
+                                            set spentPoints = spentPoints + ${totalPointsToSpend}
+                                            where tranID = ${tranID};`
+                    db.run(spendPointsQuery, (err) => {
+                      if(err) {
+                        console.log(`Error updating spent points for tranID ${tranID}: check transaction table.`);
+                      } else {
+                        console.log(`TranID ${tranID} updated.`);
+                      }
+
+                    });
+
+                    totalPointsToSpend -= totalPointsToSpend;
+                  }
+                }
+              }
+            }
+          });
+
+          callback("Spending transaction loaded into table.");
+        }
+
+      });
+
+    });
 
   } else {
     //catch-all for edge cases not specified
@@ -192,10 +275,26 @@ const spendPoints = function(points, callback) {
               {"payer": string, "points": int}, but this can be handled either in DB or server code.
             */
             for(payer in payerList) {
-              console.log(payer);
-              //moment formatting
-              console.log(moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]'));
-              //TBD: remaining code
+              let negativePoints = payerList[payer] * -1;
+
+              let spendTransaction = { "payer": payer,
+                                       "points": negativePoints,
+                                       "timestamp":  moment().format('YYYY-MM-DD[T]HH:MM:SS[Z]')
+                                     };
+
+              console.log("Adding following transaction to transaction table: ");
+              console.log(spendTransaction);
+              //TBD: remaining code: add addTransaction handling here
+              addTransaction(spendTransaction, (output) => {
+                if(output === null) {
+                  console.log("Error adding transaction");
+                  callback(null);
+                } else {
+                  console.log(`Transaction for ${payer} added successfully.`);
+                }
+
+              });
+
             }
 
           }
@@ -210,7 +309,7 @@ const spendPoints = function(points, callback) {
 
 //helper function: list transactions currently in memory.
 const listTransactions = function(callback) {
-  db.all('select * from transactions order by tranID', (err, rows) => {
+  db.all('select * from transactions order by timestamp', (err, rows) => {
     if(err) {
       console.log("Error listing transactions.");
       console.log(err);

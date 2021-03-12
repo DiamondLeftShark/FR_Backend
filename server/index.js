@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database/database.js');
+const { RSA_NO_PADDING } = require('constants');
 //TBD: additional library declarations as needed
 
 
@@ -73,6 +74,17 @@ app.get('/balance', function(req,res) {
   console.log('GET balance received');
 
   db.getBalance((transactions) => {
+    if(transactions === null) {
+      res.status(500).end();
+    } else {
+      res.send(transactions);
+    }
+  });
+});
+
+//helper API: get all transactions currently in table
+app.get('/list', function(req, res)  {
+  db.listTransactions((transactions) => {
     if(transactions === null) {
       res.status(500).end();
     } else {
