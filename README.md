@@ -10,7 +10,10 @@ This program was built as a solution for the Fetch Rewards coding prompt describ
 
 3. Some console log statements have been included as a way to track what the program is doing via the terminal when performing/serving requests, though any API requests that expect data from the response as listed in the requirements should still receive it.
 
+4. Test data and API calls are included in this code for the sake of validation/clarity: these can be enabled or disabled with useSampleData in database/database.js and enableTestAPIs in server/index.js respectively.
+
 ## Installation and Setup
+
 This program runs in Node and uses Node Package Manager (NPM) to automatically download and install any required dependencies.  After downloading this repo:
 
 1. Install Node/NPM at https://www.npmjs.com/get-npm (if they are not already installed).
@@ -62,7 +65,7 @@ Required parameters:
 }
 ```
 
-Note that only one transaction may be sent at a time: if multiple transactions are received, only the first one will be processed.  The payer and points fields are required, and points must also be a non-zero value.  Negative point values are accepted and will be deducted from the appropriate payer balance if available, but transaction assumes any necessary accounting has been performed elsewhere and can result in issues if the negative points exceed the current payer's remaining balance: use /spend instead unless otherwise required.
+Note that only one transaction may be sent at a time: if multiple transactions are received in the same POST, only the first one will be processed.  The payer and points fields are required, and points must also be a non-zero value.  Negative point values are accepted and will be deducted from the appropriate payer balance if available, but /transaction assumes any necessary accounting has been performed elsewhere and can result in issues if the negative points exceed the current payer's remaining balance: use /spend instead unless otherwise required.
 
 If no timestamp is provided, the system will use the current time for the transaction.
 

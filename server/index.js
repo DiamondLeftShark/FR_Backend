@@ -4,8 +4,6 @@ const bodyParser = require('body-parser');
 const db = require('../database/database.js');
 const { RSA_NO_PADDING } = require('constants');
 const { restart } = require('nodemon');
-//TBD: additional library declarations as needed
-
 
 const app = express();
 app.use( bodyParser.json() );
@@ -13,20 +11,8 @@ app.use( bodyParser.json() );
 const port = 3000;
 const enableTestAPIs = true;
 
-//API declarations
-/*
-Provide routes that:
-● Add transactions for a specific payer and date. (POST)
-● Spend points using the rules above and return a list of { "payer": <string>, "points": <integer> } for each call. (POST)
-● Return all payer point balances. (GET)
-Note:
-● We are not defining specific requests/responses. Defining these is part of the exercise.
-● We don’t expect you to use any durable data store. Storing transactions in memory is acceptable for the exercise.
 
-*/
-
-// /transaction
-//TBD
+// Add transaction to table
 app.post('/transaction', function(req, res) {
   console.log('POST /transaction received');
   console.log(req.body);
@@ -46,8 +32,7 @@ app.post('/transaction', function(req, res) {
   })
 });
 
-// /spend
-//TBD: send points by payer back to requestor on success
+// Spend specified number of points
 app.post('/spend', function(req,res) {
   console.log('POST /spend received');
   console.log(req.body);
@@ -69,8 +54,7 @@ app.post('/spend', function(req,res) {
 
 });
 
-// /balance
-//TBD
+// Get balance by payer
 app.get('/balance', function(req,res) {
 
   console.log('GET balance received');

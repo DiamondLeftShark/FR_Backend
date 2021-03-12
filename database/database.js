@@ -1,5 +1,5 @@
-/*handles variables for data storage and the function calls required to access and modify the data.
-For purposes of exercise, this transaction data is stored in memory and will be cleared on any server restart.
+/*Database functions for tracking and updating transaction data and any spending requests.
+For purposes of exercise, this transaction data is stored in memory and will be cleared on program restart.
 This code also assumes that all transactions conducted/points spent belong to the same user.
 */
 const sqlite = require('sqlite3').verbose();
@@ -73,11 +73,11 @@ const getTotalBalance = function(callback) {
  {"payer": string,
   "points": int,
   "timestamp": date}
-  Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time for timestamp.
+  Points can be either positive or negative, with negative equating to points spent.  If no/invalid timestamp, use current time.
   For transactions with negative points, this function assumes balance checking has been done elsewhere (e.g. spendPoints): use spendPoints unless otherwise necessary.
 */
 const addTransaction = function(transaction, callback) {
-  console.log("Trnsaction received: ");
+  console.log("Transaction received: ");
   console.log(transaction);
 
   let payer = transaction.payer;
@@ -96,7 +96,6 @@ const addTransaction = function(transaction, callback) {
     callback(null);
 
   } else if(points > 0) {
-    //if points > 0, add transaction to table
     let query = `INSERT INTO transactions(payer, timestamp, points)
                  VALUES('${payer}', '${timestamp}', ${points});`;
 
@@ -112,15 +111,10 @@ const addTransaction = function(transaction, callback) {
     });
 
   } else if(points < 0) {
-    /*TBD:
-      1. Add spending transaction to table.
-      2. Update spentPoints for each positive transaction from the given payer until in balance.  Points should be spent using oldest available first.
-    */
+
     db.serialize(() => {
       let insertQuery = `INSERT INTO transactions(payer, timestamp, points)
                  VALUES('${payer}', '${timestamp}', ${points});`;
-
-      console.log(insertQuery);
 
       db.run(insertQuery, (err) => {
         if(err) {
