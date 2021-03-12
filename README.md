@@ -42,12 +42,11 @@ API type: GET
 
 Required parameters: none
 
-Response: If successful, returns a JSON list of payers in the following format:
+Response: If successful, returns a JSON list of payers and their remaining balance in the following format:
 
 ```
 [
-  {'payer': string,
-   'points': int}
+  {'payer name': int
 ]
 ```
 On error: returns 500
