@@ -48,7 +48,12 @@ const getBalance = function(callback) {
       callback(null);
     } else {
       console.log(rows);
-      callback(rows);
+      let formattedBalance = {};
+      for(let i = 0; i < rows.length; i++) {
+        formattedBalance[rows[i].payer] = rows[i].points;
+      }
+      console.log(formattedBalance);
+      callback(formattedBalance);
     }
   });
   return 1;
