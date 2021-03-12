@@ -3,13 +3,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../database/database.js');
 const { RSA_NO_PADDING } = require('constants');
+const { restart } = require('nodemon');
 //TBD: additional library declarations as needed
 
 
-var app = express();
+const app = express();
 app.use( bodyParser.json() );
 
-var port = 3000;
+const port = 3000;
+const enableTestAPIs = true;
 
 //API declarations
 /*
@@ -84,6 +86,11 @@ app.get('/balance', function(req,res) {
 
 //helper API: get all transactions currently in table
 app.get('/list', function(req, res)  {
+  if(enableTestAPIs === false) {
+    res.status(500).end();
+    return 1;
+  }
+
   db.listTransactions((transactions) => {
     if(transactions === null) {
       res.status(500).end();
