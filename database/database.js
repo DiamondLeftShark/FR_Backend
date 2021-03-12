@@ -130,7 +130,6 @@ const addTransaction = function(transaction, callback) {
                  AND payer = "${payer}"
                  order by timestamp;`;
 
-          //TBD: complete rest of logic
           db.all(sql, (err, rows) => {
             if(err) {
               console.log("Error getting transactions with unspent points.");
@@ -138,8 +137,7 @@ const addTransaction = function(transaction, callback) {
               callback(null);
 
             } else {
-              console.log(rows);
-              console.log('^^^^^^^');
+
               let totalPointsToSpend = points * -1;
 
               for(i = 0; i < rows.length; i++) {
@@ -152,7 +150,8 @@ const addTransaction = function(transaction, callback) {
 
                     let spendPointsQuery = `UPDATE transactions
                                             set spentPoints = spentPoints + ${remainingPoints}
-                                            where tranID = ${tranID};`
+                                            where tranID = ${tranID};`;
+
                     db.run(spendPointsQuery, (err) => {
                       if(err) {
                         console.log(`Error updating spent points for tranID ${tranID}: check transaction table.`);
@@ -167,7 +166,8 @@ const addTransaction = function(transaction, callback) {
                   } else {
                     let spendPointsQuery = `UPDATE transactions
                                             set spentPoints = spentPoints + ${totalPointsToSpend}
-                                            where tranID = ${tranID};`
+                                            where tranID = ${tranID};`;
+
                     db.run(spendPointsQuery, (err) => {
                       if(err) {
                         console.log(`Error updating spent points for tranID ${tranID}: check transaction table.`);
@@ -224,9 +224,6 @@ const spendPoints = function(points, callback) {
       callback(null);
 
     } else {
-       //otherwise, check which transactions have a remaining points balance and deduct from each payer until all points have been deducted
-       //add appropriate transactions to each table deducting points from each payer as needed
-       //after all transactions have been added, return a list of points spent for each payer to the callback function
 
       let sql = `select * from transactions
                  where points > 0
@@ -238,12 +235,12 @@ const spendPoints = function(points, callback) {
             console.log(err);
             callback(null);
           } else {
-            console.log(rows);
-            console.log('************');
+            //console.log(rows);
+            //console.log('************');
 
             for(let i = 0; i < rows.length; i++) {
 
-              console.log(rows[i]);
+              //console.log(rows[i]);
 
               if(currentPointsSpent < points) {
                 let remainingPointsForRow = rows[i].points - rows[i].spentPoints;
@@ -258,7 +255,7 @@ const spendPoints = function(points, callback) {
               }
 
               console.log(`Current points spent: ${currentPointsSpent} out of ${points} after row ${i}`);
-              console.log(payerList);
+              //console.log(payerList);
 
             }
 
